@@ -20,6 +20,7 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 	// routes for the API
 	router.POST("/user", server.createUser)
 	router.GET("/get_user", server.getUser)
+
 	server.router = router
 	return server, nil
 }
