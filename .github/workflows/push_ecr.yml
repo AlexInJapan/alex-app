@@ -2,8 +2,7 @@ name: Build & Push Docker image to ECR
 
 on:
   push:
-    branches:
-      - main
+  
 env:
   AWS_REGION: ap-northeast-1           # change to your region
   ECR_REPOSITORY: alex/alex-app      # change to your ECR repo name
