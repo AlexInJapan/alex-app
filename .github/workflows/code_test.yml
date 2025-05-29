@@ -2,7 +2,7 @@ name: Test and Vet Go Code
 
 on:
   push:
-    branches: [ main ]
+    branches: "main"
 
 jobs:
   test:
