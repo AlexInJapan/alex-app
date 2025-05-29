@@ -1,0 +1,45 @@
+name: Build & Push Docker image to ECR
+
+on:
+  push:
+    branches:
+      - main
+env:
+  AWS_REGION: ap-northeast-1           # change to your region
+  ECR_REPOSITORY: alex/alex-app      # change to your ECR repo name
+  IMAGE_TAG: ${{ github.sha }}    # commit SHA; use 'latest' if preferred
+
+jobs:
+  push-to-ecr:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 1. Configure AWS credentials
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region:            ${{ env.AWS_REGION }}
+
+    # 2. Log in to ECR (gets registry URL as an output)
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    # 3. Build, tag, and push the image
+    - name: Build & push image
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: |
+        IMAGE_URI=${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+
+        docker build -t $IMAGE_URI .
+        docker push $IMAGE_URI
+
+        # Optional "latest" tag
+        docker tag $IMAGE_URI ${REGISTRY}/${ECR_REPOSITORY}:latest
+        docker push ${REGISTRY}/${ECR_REPOSITORY}:latest

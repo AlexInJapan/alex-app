@@ -1,8 +1,6 @@
 name: Go Lint and Format
 
 on:
-  pull_request:
-    types: [opened, synchronize]
   push:
 
 jobs:
