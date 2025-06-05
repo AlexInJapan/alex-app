@@ -1,0 +1,54 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "8080:8080" 
+    depends_on:
+      db: 
+        condition: service_healthy
+    environment:
+      - GIN_MODE=release
+    networks:
+     - alex-network
+
+
+  frontend:
+    build:
+      context: ./frontend
+    depends_on:
+      - backend  # Ensure the frontend waits for the backend to be ready
+    ports:
+      - "3000:3000"  # Adjust the port as necessary
+    environment:
+     - NEXT_PUBLIC_API_URL=http://backend:8080
+    networks:
+     - alex-network
+
+  db:
+    image: postgres:16-alpine
+    container_name: alex-app-db-1
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: alexdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d alexdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - alex-network
+volumes:
+  postgres_data:
+
+networks:
+  alex-network:
+    driver: bridge
+
+
