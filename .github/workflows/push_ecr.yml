@@ -1,15 +1,19 @@
-name: Build & Push Docker image to ECR
+name: Build & Push Docker images to ECR
 
 on:
   push:
+    branches: [main]  # Only trigger on main branch pushes
+
 permissions:
   id-token: write  # Required for ECR login
-  contents: read  # Required to checkout the code
+  contents: read   # Required to checkout the code
+
 env:
-  AWS_REGION: ap-northeast-1           # change to your region
-  ECR_REPOSITORY: alex/alex-app      # change to your ECR repo name
-  IMAGE_TAG: ${{ github.sha }}    # commit SHA; use 'latest' if preferred
-  AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }} # Uncomment if using a role to assume
+  AWS_REGION: ap-northeast-1
+  ECR_REPOSITORY_FRONTEND: alex/alex-app-frontend
+  ECR_REPOSITORY_BACKEND: alex/alex-app-backend
+  IMAGE_TAG: ${{ github.sha }}
+  AWS_ROLE_TO_ASSUME: ${{ secrets.AWS_ROLE_TO_ASSUME }}
 
 jobs:
   push-to-ecr:
@@ -26,21 +30,49 @@ jobs:
         role-to-assume: ${{ env.AWS_ROLE_TO_ASSUME }}
         aws-region: ${{ env.AWS_REGION }}
 
-    # 2. Log in to ECR (gets registry URL as an output)
+    # 2. Log in to ECR
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    # 3. Build, tag, and push the image
-    - name: Build & push image
+    # 3. Build, tag, and push frontend image
+    - name: Build & push frontend image
       env:
         REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        IMAGE_URI=${REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}
+        FRONTEND_IMAGE_URI=${REGISTRY}/${ECR_REPOSITORY_FRONTEND}:${IMAGE_TAG}
 
-        docker build -t $IMAGE_URI .
-        docker push $IMAGE_URI
+        # Build frontend image
+        docker build -t $FRONTEND_IMAGE_URI ./frontend
+        docker push $FRONTEND_IMAGE_URI
 
-        # Optional "latest" tag
-        docker tag $IMAGE_URI ${REGISTRY}/${ECR_REPOSITORY}:latest
-        docker push ${REGISTRY}/${ECR_REPOSITORY}:latest
+        # Tag and push as latest
+        docker tag $FRONTEND_IMAGE_URI ${REGISTRY}/${ECR_REPOSITORY_FRONTEND}:latest
+        docker push ${REGISTRY}/${ECR_REPOSITORY_FRONTEND}:latest
+
+        echo "Frontend image pushed: $FRONTEND_IMAGE_URI"
+
+    # 4. Build, tag, and push backend image
+    - name: Build & push backend image
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: |
+        BACKEND_IMAGE_URI=${REGISTRY}/${ECR_REPOSITORY_BACKEND}:${IMAGE_TAG}
+
+        # Build backend image
+        docker build -t $BACKEND_IMAGE_URI ./backend
+        docker push $BACKEND_IMAGE_URI
+
+        # Tag and push as latest
+        docker tag $BACKEND_IMAGE_URI ${REGISTRY}/${ECR_REPOSITORY_BACKEND}:latest
+        docker push ${REGISTRY}/${ECR_REPOSITORY_BACKEND}:latest
+
+        echo "Backend image pushed: $BACKEND_IMAGE_URI"
+
+    # 5. Output image URIs for potential use in deployment
+    - name: Output image URIs
+      env:
+        REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      run: |
+        echo "Frontend Image: ${REGISTRY}/${ECR_REPOSITORY_FRONTEND}:${IMAGE_TAG}"
+        echo "Backend Image: ${REGISTRY}/${ECR_REPOSITORY_BACKEND}:${IMAGE_TAG}"

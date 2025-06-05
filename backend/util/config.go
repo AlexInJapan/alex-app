@@ -8,8 +8,9 @@ import (
 
 // Config store all configuration of the application
 type Config struct {
-	DBSource      string `mapstructure:"DB_SOURCE"`
-	ServerAddress string `mapstructure:"HTTP_SERVER_ADDRESS"`
+	DBSource        string `mapstructure:"DB_SOURCE"`
+	ServerAddress   string `mapstructure:"HTTP_SERVER_ADDRESS"`
+	MigrationSource string `mapstructure:"MIGRATION_SOURCE"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

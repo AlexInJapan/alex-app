@@ -2,8 +2,8 @@
 package api
 
 import (
-	"github.com/AlexInJapan/alex-app/backend/util"
-	db "github.com/AlexInJapan/alex-app/db/sqlc"
+	db "github.com/awe8128/backend/db/sqlc"
+	"github.com/awe8128/backend/util"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,9 +16,15 @@ type Server struct {
 func NewServer(config util.Config, store db.Store) (*Server, error) {
 	server := &Server{store: store}
 	router := gin.Default()
-
+	// Set up the router to use JSON as the default content type
+	router.Use(func(c *gin.Context) {
+		c.Header("Content-Type", "application/json")
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+	})
 	// routes for the API
-	router.POST("/user", server.createUser)
+	router.POST("/createUser", server.createUser)
 	router.GET("/login", server.login)
 
 	server.router = router

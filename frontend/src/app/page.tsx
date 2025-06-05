@@ -3,34 +3,28 @@
 
 import { useState, FormEvent } from 'react';
 import styles from "@/app/page.module.css"
-import { useRouter } from 'next/navigation'; // 必要に応じて
+import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
-  const router = useRouter(); // 必要に応じて
+  const [registerEmail, setRegisterEmail] = useState<string>('');
+  const [registerName, setRegisterName] = useState<string>('');
+  const [registerLoading, setRegisterLoading] = useState<boolean>(false);
+  const [registerMessage, setRegisterMessage] = useState<string>('');
+  const router = useRouter();
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsLoading(true);
     setMessage('');
 
-    const apiPath = '/api/login'
-
     try {
-      const response = await fetch(apiPath, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: email }),
-      });
-      const data = await response.json(); // レスポンスボディをJSONとしてパース
-
-      if (response.ok) {
+      const data = await apiClient.login(email);
+      if (data) {
         setMessage(data.message || 'リクエストが成功しました！');
-        // 例: ログイン成功後にダッシュボードへリダイレクト
         router.push('/dashboard');
       } else {
         setMessage(data.message || 'リクエストに失敗しました。');
@@ -40,6 +34,26 @@ export default function LoginPage() {
       setMessage('エラーが発生しました。通信状態を確認するか、時間をおいて再度お試しください。');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleRegister = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setRegisterLoading(true);
+    setRegisterMessage('');
+
+    try {
+      const data = await apiClient.register(registerEmail, registerName);
+      if (data) {
+        setRegisterMessage(data.message || '登録が成功しました！');
+      } else {
+        setRegisterMessage((data && data.message) || '登録に失敗しました。');
+      }
+    } catch (error) {
+      console.error('APIリクエストエラー:', error);
+      setRegisterMessage('エラーが発生しました。通信状態を確認するか、時間をおいて再度お試しください。');
+    } finally {
+      setRegisterLoading(false);
     }
   };
 
@@ -67,6 +81,44 @@ export default function LoginPage() {
         </button>
       </form>
       {message && <p className={styles.message}>{message}</p>}
+
+      {/* Register Form */}
+      <form onSubmit={handleRegister} className={styles.form} style={{ marginTop: '2rem' }}>
+        <div className={styles.inputGroup}>
+          <label htmlFor="registerEmail" className={styles.label}>
+            新規登録メールアドレス
+          </label>
+          <input
+            type="email"
+            id="registerEmail"
+            name="registerEmail"
+            value={registerEmail}
+            onChange={(e) => setRegisterEmail(e.target.value)}
+            required
+            className={styles.input}
+            placeholder="email@example.com"
+          />
+        </div>
+        <div className={styles.inputGroup}>
+          <label htmlFor="registerPassword" className={styles.label}>
+            パスワード
+          </label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            value={registerName}
+            onChange={(e) => setRegisterName(e.target.value)}
+            required
+            className={styles.input}
+            placeholder="Your name"
+          />
+        </div>
+        <button type="submit" disabled={registerLoading} className={styles.button}>
+          {registerLoading ? '登録中...' : '新規登録'}
+        </button>
+      </form>
+      {registerMessage && <p className={styles.message}>{registerMessage}</p>}
     </div>
   );
 }
