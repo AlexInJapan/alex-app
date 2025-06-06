@@ -22,7 +22,17 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+		c.Next()
 	})
+	router.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "up"})
+	})
+
 	// routes for the API
 	router.POST("/createUser", server.createUser)
 	router.GET("/login", server.login)
