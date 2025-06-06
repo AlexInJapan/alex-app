@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>('');
+  const [loginUser, setLoginUser] = useState<string>('');
   const [registerEmail, setRegisterEmail] = useState<string>('');
   const [registerName, setRegisterName] = useState<string>('');
   const [registerLoading, setRegisterLoading] = useState<boolean>(false);
@@ -25,7 +26,10 @@ export default function LoginPage() {
       const data = await apiClient.login(email);
       if (data) {
         setMessage(data.message || 'リクエストが成功しました！');
-        router.push('/dashboard');
+        setLoginUser(data.user || '');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 2000); // 少し待ってからメッセージを消す
       } else {
         setMessage(data.message || 'リクエストに失敗しました。');
       }
@@ -80,7 +84,7 @@ export default function LoginPage() {
           {isLoading ? '送信中...' : '送信'}
         </button>
       </form>
-      {message && <p className={styles.message}>{message}</p>}
+      {message && <p className={styles.message}>{message}:{loginUser}</p>}
 
       {/* Register Form */}
       <form onSubmit={handleRegister} className={styles.form} style={{ marginTop: '2rem' }}>

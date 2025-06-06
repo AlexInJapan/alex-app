@@ -6,7 +6,6 @@ import (
 
 	db "github.com/awe8128/backend/db/sqlc"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx"
 )
 
 type createUserRequest struct {
@@ -46,14 +45,17 @@ func (server *Server) login(ctx *gin.Context) {
 	}
 	log.Println("email", req.Email)
 
-	user, err := server.store.GetUser(ctx, req.Email)
-	if err != nil {
-		if err == pgx.ErrNoRows {
-			ctx.JSON(http.StatusNotFound, errorResponse(err))
-			return
-		}
-		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
-		return
-	}
-	ctx.JSON(http.StatusOK, user)
+	// user, err := server.store.GetUser(ctx, req.Email)
+	// if err != nil {
+	// 	if err == pgx.ErrNoRows {
+	// 		ctx.JSON(http.StatusNotFound, errorResponse(err))
+	// 		return
+	// 	}
+	// 	ctx.JSON(http.StatusInternalServerError, errorResponse(err))
+	// 	return
+	// }
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+		"user":    req.Email,
+	})
 }
