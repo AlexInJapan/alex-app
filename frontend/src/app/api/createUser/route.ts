@@ -15,7 +15,7 @@ export async function POST(request: Request) {
         }
 
 
-        const res = await fetch("http://backend:8080/createUser", {
+        const res = await fetch("http://localhost:8080/createUser", {
             method: "POST",
             headers: {
             "Content-Type": "application/json"

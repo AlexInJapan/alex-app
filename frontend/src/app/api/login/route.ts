@@ -9,7 +9,7 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: "Enter your email" }, { status: 400 });
         }
 
-        const res = await fetch(`http://backend:8080/login?email=${encodeURIComponent(email)}`);
+        const res = await fetch(`http://localhost:8080/login?email=${encodeURIComponent(email)}`);
 
         if (!res.ok) {
             return NextResponse.json({ error: "Failed to fetch user data" }, { status: res.status });

@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/AlexInJapan/alex-app/issues"
   },
-  "homepage": "https://github.com/AlexInJapan/alex-app#readme"
+  "homepage": "https://github.com/AlexInJapan/alex-app#readme",
+  "dependencies": {
+    "@playwright/mcp": "^0.0.29"
+  }
 }
