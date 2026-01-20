@@ -13,12 +13,13 @@ services:
     networks:
      - alex-network
 
-
   frontend:
     build:
       context: ./frontend
+      dockerfile: Dockerfile
     depends_on:
       - backend  # Ensure the frontend waits for the backend to be ready
+      - db
     ports:
       - "3000:3000"  # Adjust the port as necessary
     environment:
@@ -44,9 +45,20 @@ services:
       retries: 5
     networks:
       - alex-network
+  playwright-mcp:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.playwright
+    container_name: playwright-mcp-server
+    ports:
+      - "3302:3302"
+    environment:
+      - MCP_PORT=3302
+    networks:
+      - alex-network
+
 volumes:
   postgres_data:
-
 networks:
   alex-network:
     driver: bridge

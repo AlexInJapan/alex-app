@@ -1,0 +1,46 @@
+.github/
+    workflows/
+        test.yml
+        lint.yml
+backend/
+  cmd/
+    server/
+      main.go
+    migration/
+      main.go
+  internal/
+    domain/
+      user/
+        entity.go
+        repository.go
+    application/
+      user/
+        service.go
+    infrastructure/
+      db/
+        query/
+          user.sql
+        sqlc/
+          db.go
+          models.go
+          querier.go
+          store.go
+          user.sql.go
+        postgres.go
+    interfaces/
+      http/
+        handler.go
+  util/
+    config.go      # Viper config logic
+    errors.go      # Custom error handling
+    logger.go      # Logging setup
+  migrations/
+    000001_add_users.up.sql
+    000001_add_users.down.sql
+  config/
+    config.yaml
+  .air.toml
+  sqlc.yaml
+  go.mod
+  Makefile
+  Dockerfile

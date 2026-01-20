@@ -15,7 +15,12 @@ type Server struct {
 
 func NewServer(config util.Config, store db.Store) (*Server, error) {
 	server := &Server{store: store}
-	router := gin.Default()
+	router := gin.New()
+
+	router.Use(ErrorHandler())
+
+	router.Use(gin.Logger())
+
 	// Set up the router to use JSON as the default content type
 	router.Use(func(c *gin.Context) {
 		c.Header("Content-Type", "application/json")
@@ -30,21 +35,16 @@ func NewServer(config util.Config, store db.Store) (*Server, error) {
 		c.Next()
 	})
 	router.GET("/health", func(c *gin.Context) {
-		c.JSON(200, gin.H{"status": "up"})
+		c.JSON(200, gin.H{"status": "hello"})
 	})
 
 	// routes for the API
 	router.POST("/createUser", server.createUser)
 	router.GET("/login", server.login)
-
 	server.router = router
 	return server, nil
 }
 
 func (server *Server) Start(address string) error {
 	return server.router.Run(address)
-}
-
-func errorResponse(err error) gin.H {
-	return gin.H{"error": err.Error()}
 }

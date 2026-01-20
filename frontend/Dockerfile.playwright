@@ -1,0 +1,24 @@
+# syntax=docker/dockerfile:1
+FROM --platform=linux/amd64 mcr.microsoft.com/playwright:v1.50.0-noble
+
+WORKDIR /app
+
+RUN npm install -g @playwright/mcp
+
+RUN npm install @playwright/test
+
+RUN npx playwright install chrome && npx playwright install-deps chrome
+
+RUN addgroup --system playwright && adduser --system --ingroup playwright --home /home/playwright playwright
+
+# COPY /playwright-mcp-docker/entrypoint.sh /app/entrypoint.sh
+# RUN chmod +x /app/entrypoint.sh
+
+RUN chown -R playwright:playwright /app
+
+RUN mkdir -p /home/playwright/.npm && chown -R playwright:playwright /home/playwright
+
+USER playwright
+
+# ENTRYPOINT ["/app/entrypoint.sh"]
+CMD ["npx", "@playwright/mcp", "--port", "3302"]
