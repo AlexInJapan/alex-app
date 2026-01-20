@@ -1,0 +1,7 @@
+{
+  "servers": {
+    "playwright": {
+    "url": "http://localhost:3302/mcp"
+    }
+  },
+}

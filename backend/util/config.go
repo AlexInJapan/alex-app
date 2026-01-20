@@ -11,6 +11,8 @@ type Config struct {
 	DBSource        string `mapstructure:"DB_SOURCE"`
 	ServerAddress   string `mapstructure:"HTTP_SERVER_ADDRESS"`
 	MigrationSource string `mapstructure:"MIGRATION_SOURCE"`
+	AtlasURL        string `mapstructure:"ATLAS_URL"`
+	AtlasEnv        string `mapstructure:"ATLAS_ENV"`
 }
 
 func LoadConfig(path string) (config Config, err error) {
