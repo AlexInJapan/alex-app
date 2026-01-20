@@ -5,60 +5,14 @@
 package db
 
 import (
-	"database/sql/driver"
-	"fmt"
-
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type TaskCompletation string
-
-const (
-	TaskCompletationNotStarted TaskCompletation = "notStarted"
-	TaskCompletationWorking    TaskCompletation = "Working"
-	TaskCompletationDone       TaskCompletation = "Done"
-)
-
-func (e *TaskCompletation) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = TaskCompletation(s)
-	case string:
-		*e = TaskCompletation(s)
-	default:
-		return fmt.Errorf("unsupported scan type for TaskCompletation: %T", src)
-	}
-	return nil
-}
-
-type NullTaskCompletation struct {
-	TaskCompletation TaskCompletation `json:"task_completation"`
-	Valid            bool             `json:"valid"` // Valid is true if TaskCompletation is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullTaskCompletation) Scan(value interface{}) error {
-	if value == nil {
-		ns.TaskCompletation, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.TaskCompletation.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullTaskCompletation) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.TaskCompletation), nil
-}
-
 type Tasks struct {
-	ID     int64                `json:"id"`
-	Name   string               `json:"name"`
-	Status NullTaskCompletation `json:"status"`
-	UserID pgtype.Int8          `json:"user_id"`
+	ID     int64       `json:"id"`
+	Name   string      `json:"name"`
+	Status bool        `json:"status"`
+	UserID pgtype.Int8 `json:"user_id"`
 }
 
 type Users struct {
