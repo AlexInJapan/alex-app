@@ -25,12 +25,14 @@ func main() {
 		log.Fatal("Cannot connect to db:", err)
 	}
 
+	log.Println("Start new store(db)")
 	store := db.NewStore(conn)
 	server, err := api.NewServer(config, store)
 	if err != nil {
 		log.Fatal("Cannot create server: ", err)
 	}
 
+	log.Println("Started working on migration")
 	log.Println("Starting Migration")
 	migration, err := migrate.New(config.MigrationSource, config.DBSource)
 
